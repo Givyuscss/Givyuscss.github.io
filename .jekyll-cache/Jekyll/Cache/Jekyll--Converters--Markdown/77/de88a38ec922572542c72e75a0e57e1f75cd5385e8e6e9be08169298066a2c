@@ -1,0 +1,449 @@
+I"Α<h1 id="a-survey-on-multi-view-clustering">A Survey on Multi-View Clustering</h1>
+
+<h2 id="i-abstract">I Abstract</h2>
+
+<h3 id="1definition">1.Definition:</h3>
+
+<p>MVC是一个机器学习方法：通过结合多视角信息将相似的个体聚类，将不同的物体分开。</p>
+
+<h3 id="2categories">2.categories:</h3>
+
+<ul>
+  <li><strong>generative (or model-based) approaches ———生成（基于模型）方法</strong></li>
+</ul>
+
+<p>尝试学习数据的基本分布，并用生成模型来表示数据分类情况，一个模型代表一个类别</p>
+
+<ul>
+  <li><strong>discriminative (or similarity-based) approaches ——— 区分（基于相似性）方法</strong></li>
+</ul>
+
+<p>直接优化一个与相似性相关的目标函数，使得类别内的个体相似度增加，不同类别之间的相似性减小</p>
+
+<h3 id="3discriminative-apporaches">3.Discriminative apporaches</h3>
+
+<p>区分方法应用广泛，基于他们不同的组合多视角信息方法将其分为5类：</p>
+
+<ul>
+  <li>
+    <p><strong>common eigenvector matrix 公共特征向量矩阵(主要为多视角光谱聚类)</strong></p>
+  </li>
+  <li>
+    <p><strong>common coefficient matrix 公共系数矩阵(主要为多视角子空间聚类)</strong></p>
+  </li>
+  <li>
+    <p><strong>common indicator matrix 公共指标矩阵(主要为多视图非负矩阵因子聚类)</strong></p>
+  </li>
+  <li>
+    <p><strong>direct view combination 直接视图组合(主要为多内核集群)</strong></p>
+  </li>
+  <li>
+    <p><strong>view combination after projection 投影后视图组合(主要为典型相关分析(CCA)</strong></p>
+  </li>
+</ul>
+
+<p>前三个方法的相似之处是他们使用了相近的结构来结合多视角信息</p>
+
+<h2 id="ii-gerenative-approaches">II Gerenative approaches</h2>
+
+<p>大多数情况，生成方法是基于混合模型和EM算法的</p>
+
+<h3 id="1-mixture-models-混合模型"><strong>1. Mixture Models 混合模型</strong></h3>
+
+<p>混合分布可以被表示为：
+\begin{equation}
+\displaystyle p(x|\theta)=\sum^{K}_{k=1}\pi_kp(x|\theta)
+\end{equation}</p>
+
+<ul>
+  <li><strong>以混合高斯模型(GMM)为例：</strong></li>
+</ul>
+
+<p><strong>单高斯模型（正态分布）</strong>:
+\begin{equation}
+\displaystyle f(x)=\frac{1}{\sqrt{2\pi}\sigma}exp(-\frac{(x-\gamma)^2}{2\sigma^2})
+\end{equation}
+<script type="math/tex">\gamma</script>和<script type="math/tex">\sigma^2</script>分别表示高斯分布的均值和方差</p>
+
+<p>如下图所示服从二维高斯模型的数据会聚集在一个椭圆内，服从三维高斯模型的数据会聚集在一个椭球内</p>
+
+<p><img src="/img/in-post/clustering/2dGs.png" width="400px" height="275px" /></p>
+
+<p><strong>混合高斯模型：</strong>如下图所示，数据并不是由一个模型生成，因此单个高斯模型无法代表数据的特征。通过求解两个高斯模型，并通过一定权重将两个高斯模型融合成一个，即最终的高斯混合模型。</p>
+
+<p><img src="/img/in-post/clustering/mixgs.png" width="400" height="275" /></p>
+
+<p>假设混合高斯模型由K个模型混合而成，则GMM的概率密度函数为：
+\begin{equation}
+\displaystyle p(x)=\sum^{K}<em>{k=1}p(k)p(x|k)=\sum^{k}</em>{k=1}\pi_kN(x|u_k,\sum_{k})
+\end{equation}
+其中<script type="math/tex">p(x|k)=N(x|u_k,\sum_{k})</script>表示第K个模型的概率密度函数，<script type="math/tex">\pi_k</script>表示第K个模型所占权重，<script type="math/tex">\sum^{K}_{k=1}\pi_k=1</script></p>
+
+<ul>
+  <li><strong>最大期望算法（Expectation-maximization algorithm,EM）</strong></li>
+</ul>
+
+<p>令<strong>X</strong>表示已观测数变量集，<strong>Z</strong>表示隐变量集，$\Theta$表示参数模型，需要对$\Theta$做极大似然估计，则需要最大化似然函数：</p>
+
+<p>\begin{equation}
+LL(\Theta|X,Z)=lnP(X,Z|\Theta)
+\end{equation}</p>
+
+<p>算法主要依赖于无法观测的隐变量，基本思想是：若参数<script type="math/tex">\Theta</script>已知，则可根据训练数据推断出最优隐变量<strong>Z</strong>的值(E step);反之若Z的值已知，则对参数<script type="math/tex">\Theta</script>做极大似然估计(M step)</p>
+
+<p>以初始值<script type="math/tex">\Theta^0</script>为起点，执行以下步骤直至收敛：</p>
+
+<ol>
+  <li>基于<script type="math/tex">\Theta^t</script>推断隐变量<strong>Z</strong>的期望，记作<script type="math/tex">Z^t</script></li>
+  <li>基于已观测变量<strong>X</strong>和<script type="math/tex">Z^t</script>对参数<script type="math/tex">\Theta</script>做极大似然估计，记作<script type="math/tex">\Theta^{t+1}</script></li>
+</ol>
+
+<ul>
+  <li>
+    <p><strong>CMMs</strong></p>
+
+    <p>给出一个数据集<script type="math/tex">X=x_1,x_2,…,x_N\in\mathbb{R}^{d\times{N}}</script>，则混合模型CMM分布为:<script type="math/tex">Q(x)=\sum^{N}_{j=1}q_jf_j(x),x\in\mathbb{R}^{d\times{N}}</script></p>
+
+    <p>且<script type="math/tex">q_j\ge1</script>表示第j个集合的先验概率，满足<script type="math/tex">\sum^{N}_{j=1}q_j=1</script>。<script type="math/tex">f_j(x)</script>是一个指数族分布，它的期望等于第j个数据点。</p>
+
+    <p>考虑质数函数和布雷格曼散度(Bergman divergences)的双射关系，指数族分布<script type="math/tex">f_j(x)=C_\phi(x)exp(\beta d_\phi(x,x_j))</script>中，<script type="math/tex">d_\phi</script>表示布雷格曼散度，<script type="math/tex">C_\phi</script>与<script type="math/tex">x_j</script>独立不相关，<script type="math/tex">\beta</script>控制分布的情况。</p>
+
+    <p>因此CMMs的目的是将指数似然函数:</p>
+  </li>
+</ul>
+
+<p>\begin{equation}
+\begin{split} L(X;{q_j}^N_{j=1})&amp;=\frac{1}{N}\sum^N_{i=1}log(\sum^N_{j=1}q_jf_j(x_i))\&amp;=\frac{1}{N}\sum^N_{i=1}log(\sum^N_{j=1}q_je^{-\beta d_\phi(x_i,x_j)})+const \end{split}
+\end{equation}
+对数似然函数可以等价表示为<script type="math/tex">\hat{P}</script>和<script type="math/tex">Q(x)</script>的KL距离(相对熵):</p>
+
+<p>相对熵：<script type="math/tex">D(P|Q)=\sum_{x\in X}P(x)log\frac{P(x)}{Q(x)}</script>
+<script type="math/tex">% <![CDATA[
+\begin{split} 
+D(\hat{P}|Q)&=\sum^N_{i=1}\hat{P}(x_i)log\frac{\hat{P}(x_i)}{Q(x_i)}\\&=\sum^N_{i=1}\hat{P}(x_i)[log\hat{P}(x_i)-logQ(x_i)]\\&=-\sum^{N}_{i=1}\hat{P}(x_i)logQ(x_i)-\mathbb{H}(\hat{P})\\&=-L(X;\{q_j\}^N_{j=1})+const 
+\end{split} %]]></script></p>
+
+<p>其中<script type="math/tex">\mathbb{H}(\hat{P})</script>表示P的信息熵，与参数<script type="math/tex">q_j</script>相独立。</p>
+
+<p>接下来问题转化为最小化目标，可以通过迭代算法解决，因此先验概率迭代公式为：</p>
+
+<p>\begin{equation}
+\displaystyle q^{(t+1)}<em>j=q^{(t)}_j\sum^N</em>{i=1}\frac{\hat{P}f_j(x_i)}{\sum^N_{j<code class="highlighter-rouge">=1}q^{(t)}_{j</code>}f_{j`}(x_i)}
+\end{equation}
+  迭代后，根据K个<script type="math/tex">q_j</script>值最大的点作为参照，将剩余的点分配给与之有最高先验概率的参照点，将数据点分成K个不相交的集。</p>
+
+<p><strong>发现</strong>聚类的效果受<script type="math/tex">\beta</script>所影响，所以初始值<script type="math/tex">\beta_0</script>的选取通常采用<script type="math/tex">\beta_0=N^2logN/\sum^N_{i,j=1}d_\phi(x_i,x_j)</script>来保证<script type="math/tex">\beta</script>能在一个合理的范围内。</p>
+
+<h3 id="2-基于混合模型或em算法的多视角聚类"><strong>2. 基于混合模型或EM算法的多视角聚类</strong></h3>
+
+<p>对于多视角的CMMs，每个<script type="math/tex">x_i</script>都有m个视角，即<script type="math/tex">x_i=\{x^1_i,x^2_i,…,x^m_i\}</script>则每个视角的混合分布为
+\begin{equation}
+Q^v(x^v)=\sum^N_{j=1}q_jf^v_j(x^v)=C_\phi(x^v)\sum^N_{j=1}q_je^{-\beta^vd_{\phi_v}(x^v,x^v_j)}<br />
+\end{equation}</p>
+
+<p>为了取得一个结合所有视角的公共聚类结果，所有的$Q^v(x^v)$共享同样的先验权重。则目标函数为：</p>
+
+<p>\begin{equation}
+\begin{split} \mathop{min}\limits_{q_1,…,q_N}&amp;\sum^m_{v=1}D(\hat{P}^v|Q^v) \&amp;=\mathop{min}\limits_{q_1,…,q_N}{-\sum^m_{v=1}\sum^N_{i=1}\hat{P}^v(x^v_i)logQ^v(x^v_i)-\sum^m_{v=1}\mathbb{H}(\hat{P}^v)} \end{split}
+\end{equation}</p>
+
+<p>可以看出优化目标是凸的，存在全局最优解。迭代公式为：</p>
+
+<p>\begin{equation}
+\displaystyle q^{(t+1)}=\frac{q^{(t)}<em>j}{M}\sum^m</em>{v=1}\sum^N_{i=1}\frac{\hat{P}f^v_j(x^v_i)}{\sum^N_{j<code class="highlighter-rouge">=1}q^{(t)}_{j</code>}f^v_{j<code class="highlighter-rouge">}f^v_{j</code>}(x^v_i)}
+\end{equation}</p>
+
+<p><script type="math/tex">q_j</script>表示第j个数据作为范例的置信度</p>
+
+<h2 id="iii-discriminative-approaches">III Discriminative Approaches</h2>
+
+<ul>
+  <li><strong>区别</strong>：和生成方法不同，区分方法直接优化目标函数来寻找最优的聚类方案，而不是现根据样本建立模型再依据模型来确定聚类结果。</li>
+  <li>至今为止，大多数的MVC方法都属于区别方法，目标是将N个物体聚类成K个类别，最终获得一个隶属矩阵<script type="math/tex">H\in\mathbb{R}^{N\times K}</script>来表述分类情况，可见矩阵中每行的和为1。当每行只有一个元素为1其他均为0时，成为硬聚类，否则为软聚类。</li>
+</ul>
+
+<h4 id="1公共特征向量矩阵"><strong>1.公共特征向量矩阵</strong></h4>
+
+<p>该类方法主要是基于十分常用的谱聚类技术，通过假定所有视角都拥有相同或者相似的特征向量矩阵，来获得聚类结果。</p>
+
+<p><strong>主要有两个代表性的方法</strong>：1.co-training spectral clustering,2.co-regularized spectral clustering.</p>
+
+<ul>
+  <li>
+    <p><strong>谱聚类</strong>:谱聚类是利用拉普拉斯算子和图边缘来表示数据点之间的相似度，以此来解决最小切(min-cut)问题的技术。和其他常用的方法相比，谱聚类可以应用于任意形状的聚类，而k-means等仅适用于球形数据的聚类。</p>
+
+    <p>step1 给出一个无向图<script type="math/tex">G=(V,E)</script>，且向量组<script type="math/tex">V=v_1,…,v_N</script>，该图的数据邻接矩阵定义为$W$，其中每个<script type="math/tex">w_{ij}</script>表示<script type="math/tex">v_i,v_j</script>两个向量之间的相似度。如果<script type="math/tex">w_{ij}=0</script>意味着<script type="math/tex">v_i,v_j</script>之间无连接。显然W是一个对称矩阵。</p>
+
+    <p>step2 定义度矩阵<script type="math/tex">D</script>，为一个对角矩阵，对角元素为<script type="math/tex">d_1,….,d_N</script>，其中<script type="math/tex">d_i</script>为<script type="math/tex">W</script>中第i行数据之和<script type="math/tex">d_i=\sum^N_{j=1}w_{ij}</script>，则拉普拉斯算子为<script type="math/tex">D-W</script>，标准化拉普拉斯算子为<script type="math/tex">\tilde{L}=D^{-1/2}(D-W)D^{-1/2}</script>，在很多谱聚类的应用中，<script type="math/tex">L=I-\tilde{L}</script>被用来将最小化问题转化为最大化问题。因此<script type="math/tex">L,\tilde{L}</script>都被成为标准化的拉普拉斯算子。</p>
+
+    <p>因此单视角的谱聚类方法可以表示为：</p>
+
+    <p>\begin{equation}
+\begin{cases} &amp;\mathop{max}\limits_{U\in \mathbb{R}^{N\times K}}tr(U^TLU)\ &amp;s.t \quad U^TU=I \end{cases}
+\end{equation}</p>
+
+    <p>可以等价转化为：</p>
+
+    <p>\begin{equation}
+\begin{cases} &amp;\mathop{min}\limits_{U\in \mathbb{R}^{N\times K}}tr(U^T\tilde{L}U)\ &amp;s.t. \quad U^TU=I\end{cases}
+\end{equation}</p>
+
+    <p><script type="math/tex">U</script>矩阵的行为数据点的嵌入，可以直接交给k-means来获得最终的聚类结果。解决上述优化问题的方法为：选择矩阵<script type="math/tex">U</script>，将<script type="math/tex">L或\tilde{L}</script>从小到大排列取前K个特征值的特征向量作为矩阵<script type="math/tex">U</script>的列，并对$U$每行特征向量正规化后进行聚类。</p>
+  </li>
+</ul>
+
+<p><strong>谱聚类Python实现代码：</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="c1">#生成数据点，make_moons生成为两个月牙形
+</span><span class="k">def</span> <span class="nf">circle_data</span><span class="p">(</span><span class="n">num_sample</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+    <span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">make_moons</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="n">num_sample</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="mf">0.08</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span><span class="n">y</span>
+
+<span class="c1">#生成邻接矩阵W
+</span><span class="k">def</span> <span class="nf">w_matrix</span><span class="p">(</span><span class="n">sample_data</span><span class="p">):</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample_data</span><span class="p">)</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">length</span><span class="p">,</span><span class="n">length</span><span class="p">))</span>
+    <span class="n">dis_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">length</span><span class="p">,</span><span class="n">length</span><span class="p">))</span>
+    <span class="c1">#计算距离矩阵D
+</span>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">length</span><span class="p">):</span>
+            <span class="n">dis_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">sample_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">sample_data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">dis_matrix</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">dis_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+    <span class="c1">#通过KNN生成邻接矩阵W
+</span>    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span><span class="n">each</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dis_matrix</span><span class="p">):</span>
+        <span class="n">index_array</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">each</span><span class="p">)</span>
+        <span class="n">W</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">index_array</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">10</span><span class="o">+</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># 距离最短的是自己
+</span>    <span class="n">tmp_W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="p">(</span><span class="n">tmp_W</span><span class="o">+</span><span class="n">W</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+    <span class="k">return</span> <span class="n">W</span>
+
+<span class="c1">#生成度矩阵D
+</span><span class="k">def</span> <span class="nf">d_matrix</span><span class="p">(</span><span class="n">Wmatrix</span><span class="p">):</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Wmatrix</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">length</span><span class="p">,</span><span class="n">length</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
+        <span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">Wmatrix</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">d</span>
+
+<span class="c1">#生成随机颜色标记不同类别的数据点
+</span><span class="k">def</span> <span class="nf">randRGB</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span><span class="o">/</span><span class="mf">255.0</span><span class="p">,</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span><span class="o">/</span><span class="mf">255.0</span><span class="p">,</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span><span class="o">/</span><span class="mf">255.0</span><span class="p">)</span>
+
+<span class="c1">#根据数据点标签生成图像
+</span><span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span><span class="n">C</span><span class="p">,</span><span class="n">n_clustering</span><span class="p">):</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_clustering</span><span class="p">):</span>
+        <span class="n">colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">randRGB</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span><span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">C</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">matrix</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span><span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">idx</span><span class="p">])])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1">#预设参数
+</span><span class="n">num_sample</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">n_clustering</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1">#生成W，D，L矩阵
+</span><span class="n">X</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">circle_data</span><span class="p">(</span><span class="n">num_sample</span><span class="p">)</span>
+<span class="n">W</span> <span class="o">=</span> <span class="n">w_matrix</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">D</span> <span class="o">=</span> <span class="n">d_matrix</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>
+<span class="n">L</span> <span class="o">=</span> <span class="n">D</span> <span class="o">-</span> <span class="n">W</span>
+
+<span class="c1">#计算拉普拉斯矩阵的特征值和特征向量
+</span><span class="n">x</span><span class="p">,</span><span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+<span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">dictEigval</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">dim</span><span class="p">)))</span>
+<span class="c1">#排序并选取前K个特征值所对应的特征向量
+</span><span class="n">kEig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="n">n_clustering</span><span class="p">]</span>
+<span class="n">ix</span> <span class="o">=</span> <span class="p">[</span><span class="n">dictEigval</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kEig</span><span class="p">]</span>
+<span class="n">x</span><span class="p">,</span><span class="n">V</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">ix</span><span class="p">],</span><span class="n">V</span><span class="p">[:,</span><span class="n">ix</span><span class="p">]</span>
+
+<span class="c1">#用KMeans对特征向量聚类
+</span><span class="n">sp_cluster</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clustering</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">sp_cluster</span><span class="o">.</span><span class="n">labels_</span><span class="p">,</span><span class="n">n_clustering</span><span class="o">=</span><span class="n">n_clustering</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>聚类效果对比：</p>
+
+<p>Spectral clustering:</p>
+
+<p><img src="/img/in-post/clustering/result_sp.png" width="400px" height="275px" /></p>
+
+<p>Kmeans：</p>
+
+<p><img src="/img/in-post/clustering/result_km.png" width="400px" height="275px" /></p>
+
+<ul>
+  <li>
+    <p><strong>co-training multi-view spectral clustering</strong></p>
+
+    <p>对于半监督学习，当同时提供标注和无标注的数据时，两个视角协同训练是被广泛认可的方法。该方法假定基于两个视角所建立的模型有很高的几率能够给出相同的分类结果。</p>
+
+    <p>在多视角谱聚类协同训练中，拉普拉斯矩阵的特征向量中包含着聚类的区别信息，因此谱聚类多视角协同训练将特征向量在一个视角中进行聚类，并将结果用于改善另一个视角中的拉普拉斯矩阵。</p>
+
+    <p>邻接矩阵$W_{N\times N}$可以被看作是一个N维的向量，表示第i个点和其他所有点的相似度。因为最大的K个特征向量包含着聚类的分类信息，因此可以沿着这几个放心投影相似向量，来保留聚类细节信息，丢弃会混淆分类的群体内部细节。</p>
+  </li>
+  <li>
+    <p><strong>Co-Regularized Multi-View Spectral Clustering:</strong></p>
+
+    <p>Co-regularized（共正则化）对于半监督多视角学习是一个十分有效的技术。它的主要思想是减小两个视角预测函数之间的差异使得其整合为一个目标函数。</p>
+
+    <p>共正则化谱聚类采用帕普拉斯矩阵的特征向量来作为半监督学习中的预测方程。</p>
+
+    <p>令<script type="math/tex">U^{(s)},U^{(t)}</script>作为拉普拉斯矩阵<script type="math/tex">L^{(s)},L^{(t)}</script>对应的特征向量。</p>
+
+    <ol>
+      <li>第一个版本采用成对的共正则化标准来使得<script type="math/tex">U^{(s)},U^{(t)}</script>越接近越好，用$D$来衡量两个视角的分类分歧程度：</li>
+    </ol>
+
+    <p>\begin{equation}
+\displaystyle D(U^{(s)},U^{(t)})=|\frac{K^s}{|K^{(s)}|^2_F}-\frac{K^{(t)}}{|K^{(t)}|^2_F}|^2_F
+\end{equation}</p>
+
+    <p><script type="math/tex">K^{(s)}=U^{(s)}{U^{(s)}}^T</script>使用的线性核是<script type="math/tex">U^{(s)}</script>的相似矩阵。当<script type="math/tex">\|K^{(s)}\|^2_F=k</script>时，k是聚类的数量，两个视角的聚类分歧可以被表示为:</p>
+
+    <p>\begin{equation}
+\displaystyle D(U^{(s)},U^{(t)})=-tr(U^{(s)}{U^{(s)}}^TU^{(t)}{U^{(t)}}^T)
+\end{equation}</p>
+
+    <p>将所有的差异方程整合进一个目标函数中，则共正则化谱聚类可以被写作如下优化问题：</p>
+
+    <p>\begin{equation}
+\begin{cases} &amp;\mathop{max}\limits_{U^{(1)},U^{(2)},…,U^{(m)}}\sum^m_{s=1} ({U^{(s)}}^TL^{(s)}U^{(s)}) +\sum_{1\le s,t\le m,s\ne t}\lambda tr(U^{(s)}{U^{(s)}}^TU^{(t)}{U^{(t)}}^T) \ &amp;s.t.{U^{(s)}}^TU^{(s)}=I,\forall 1\le s\le m. \end{cases}
+\end{equation}</p>
+
+    <p>超参数<script type="math/tex">\lambda</script>用来协调谱聚类目标和谱聚类嵌入分歧的权重。取得嵌入结果之后，每个<script type="math/tex">U^s</script>均可以输入给kmeans进行聚类，最终的结果会有些微的不同。</p>
+
+    <ol>
+      <li>第二个版本是centroid-based co-regularization，</li>
+    </ol>
+  </li>
+</ul>
+
+<h4 id="2公共系数矩阵"><strong>2.公共系数矩阵</strong></h4>
+
+<p>很多现实中的例子，即使给出的数据维度很高，但是真正能够代表数据特征的维度其实很低。就像给出的图像维度很高，但是描述图像颜色形状的参数并不多。在实际应用中，数据可以被分成多个子空间，子空间聚类是一种寻找底层子空间，并根据已经辨别的子空间来对数据点进行聚类的技术。</p>
+
+<ul>
+  <li>
+    <p><strong>子空间聚类</strong>：子空间聚类利用了数据的自表达性，每个样本可以用其他几个数据样本的线性组合表示，经典的子空间聚类表达是：<script type="math/tex">X=XZ+E</script>。其中<script type="math/tex">Z={z_1,z_2,…,z_N}\in \mathbb{R}^{N\times N}</script>是子空间系数矩阵，每一个$z_i$是原本数据点$x_i$对于子空间的表示。<script type="math/tex">E\in \mathbb{R}^{N\times N}</script>是噪声矩阵。</p>
+
+    <p>子空间聚类可以被写作如下优化问题:</p>
+
+    <p>\begin{equation}
+\begin{cases}&amp;\mathop{min}\limits_{Z}|X-XZ|^2_F \&amp;s.t. \ Z(i,i)=0,Z^T1=1 \end{cases}
+\end{equation}</p>
+
+    <p>其中约束<script type="math/tex">Z(i,i)=0</script>是为了防止数据点由自身表示，而约束<script type="math/tex">Z^T1=1</script>表示数据点位于仿射子空间的并集中。<script type="math/tex">Z_i</script>中的非零元素和相同子空间中的数据点相符。</p>
+
+    <table>
+      <tbody>
+        <tr>
+          <td>得到了子空间表示$Z$后，可以获得相似矩阵$$W=\frac{</td>
+          <td>Z</td>
+          <td>+\Z^T</td>
+          <td>}{2}$$来构建拉普拉斯算子，最后在拉普拉斯矩阵上运行谱聚类即可得到最终的聚类结果。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p><strong>多视角子空间聚类</strong>：每个视角都可以得到一个子空间表示<script type="math/tex">Z_v</script>，为了从多视角获得统一的聚类结果，通过使得每对视角的系数矩阵差异减小，来得到公共系数矩阵。优化问题可以被写作:</p>
+
+    <p>\begin{equation}
+\begin{cases} &amp;\mathop{min}\limits_{Z^{(s)},s=1,2,…,m}\sum^m_{s=1}|X^{(s)}-X^{(s)}Z^{(s)}|^2<em>F+\alpha\sum^m</em>{s=1}|Z^{(s)}|<em>1+\beta\sum</em>{1\le s\le t}|Z^{(s)}-Z^{(t)}|_1 \&amp;s.t. \ diag(Z^{(s)})=1, \forall s\in {1,2,…,m} \end{cases}
+\end{equation}</p>
+
+    <p>其中<script type="math/tex">\|Z^{(s)}-Z^{(t)}\|_1</script>是基于成对公正则化约束的L1范数，可以减少噪声问题的影响。</p>
+  </li>
+</ul>
+
+<h4 id="3公共指示矩阵"><strong>3.公共指示矩阵</strong></h4>
+
+<ul>
+  <li>
+    <p><strong>非负矩阵分解</strong>（NMF）：对于一个非负数据矩阵<script type="math/tex">X\in \mathbb{R}^{d\times N}_+</script>，非负矩阵分解寻找两个非负矩阵因子<script type="math/tex">U\in \mathbb{R}^{d\times K}_+,V\in \mathbb{R}^{N\times K}_+</script>，使得它们的乘积是X的近似：<script type="math/tex">X \approx UV^T</script>，其中K是希望聚类的种数，$U$是基础矩阵，$V$指示矩阵。</p>
+  </li>
+  <li>
+    <p><strong>基于NMF的多视角聚类</strong>:在非负矩阵分解框架中结合多视角信息，通过NMF中不同视角的公共指示矩阵来进行多视角聚类。然而指示矩阵可能无法在相同的尺度上进行比较。为了使得聚类方案在不同的视角都有用意义且可以比较，提出了一个新的约束，将每个视角的指示矩阵整合成一个公共指示矩阵，受到NMF和概率隐性语义分析之间的关系的启发，引出了另一个归一化约束。最终的优化问题的结构为：</p>
+
+    <p>\begin{equation}
+\begin{cases}&amp;\mathop{min}\limits_{U^{(v)},V^{(v)},v=1,2,…,m}\sum^m_{v=1}|X^{(v)}-U^{(v)}V^{(v)}|^2<em>F+\sum^m</em>{v=1}\lambda_v|V^{(v)}-V^<em>|^2_F\&amp;s.t.\ \forall 1\le k\le K,|U^{(v)}_{.,k}|_1=1,U^{(v)},V^{(v)},V^{(</em>)}\ge 0\end{cases}
+\end{equation}</p>
+  </li>
+  <li>
+    <p><strong>多视角KMeans</strong>:Kmeans聚类可以借助NMF来引入一个指示矩阵$H$。则基于NMF的Kmeans聚类的公式为:</p>
+
+    <p>\begin{equation}
+\begin{cases} &amp;\mathop{min}\limits_{H,G}|X^T-HG^T|^2<em>F \&amp;s.t. \ H</em>{i,k}\in {0,1},\sum^K_{k=1}H_{i,j}=1,\forall i=1,2,…,N \end{cases}
+\end{equation}</p>
+
+    <p>因为kmeans算法不需要耗费很大的计算资源，它主要基于特征分解，所以对于大尺度的数据聚类来说，它是一个很好地选择。为了解决大尺度多视角数据，提出了一个通过采用不同视角的公共指示矩阵进行多视角kmeans聚类的方法，优化问题的结构为：</p>
+
+    <p>\begin{equation}
+\begin{cases} &amp;\mathop{min}\limits_{G^{(v)},\alpha^{(v)},H}\sum^m_{v=1}(\alpha^{(v)})^\gamma|{X^{(v)}}^T-HG^T|<em>{2,1}\&amp;s.t.\ H</em>{i,k}\in {0,1},\sum^K_{i,k}=1,\sum^m_{v=1}\alpha^{(v)}=1 \end{cases}
+\end{equation}</p>
+
+    <p>其中<script type="math/tex">\alpha^{(v)}</script>是第v个视角的权重，$\gamma$是控制权重的参数。通过学习来获得不同视角的权重，重要的视角的权重将会增加。</p>
+  </li>
+</ul>
+
+<h4 id="4直接结合法"><strong>4.直接结合法</strong></h4>
+
+<p>除了这些通过共享不同视角中的数据结构，通过核直接结合视角信息也是一个十分常用的多视角聚类方法。很自然的方法是对每个视角都定义一个核，再将这些核结合成一个凸组合。</p>
+
+<ul>
+  <li>
+    <p><strong>核方程和核组合方法</strong>：核是一个仅用线性学习算法来解决非线性问题的策略，因为核方程<script type="math/tex">K:\mathcal{X} \times \mathcal{X} \to \mathbb{R}</script>可以直接给出特征空间中的内积，而不用定义非线性变换<script type="math/tex">\phi</script>，如下是常用的核方程:</p>
+
+    <ol>
+      <li>线性核:$K(x_i,x_j)=(x_i\cdot x_j)$</li>
+      <li>多项式核：$K(x_i,x_j)=(x_i\cdot x_j+1)^d$</li>
+      <li>高斯核:$K(x_i,x_j)=exp(-\frac{|x_i-x_j|^2}{2\sigma^2})$</li>
+      <li>Sigmoid核：$K(x_i\cdot x_j)=tanh(\eta x_i\cdot x_j+v )$</li>
+    </ol>
+
+    <p>在生成核希尔伯特空间中，核方程可以被看作是向量空间中的相似方程，所以采用核作为谱聚类和核kmeans方法中的非欧几里得相似度量。</p>
+
+    <p>如果将每个视角中的核组合起来去解决多视角问题，这就是多视角聚类的多核学习方法。显然，多核学习被认为是该类多视角聚类方法中最重要的一种。主要有如下三种组合多核的方法：</p>
+
+    <ol>
+      <li>线性组合：分为线性求和和加权线性求和两个子类。</li>
+      <li>非线性组合</li>
+      <li>基于数据的组合</li>
+    </ol>
+  </li>
+  <li>
+    <p><strong>核kmeans核谱聚类</strong>：使得<script type="math/tex">\phi(\cdot):x\in \mathcal{X} \to \mathcal{H}</script>为一个特征映射，将<script type="math/tex">x</script>映射为生成希尔伯特空间的元素<script type="math/tex">\mathcal{H}</script>，则核kmeans方法写作如下形式：</p>
+
+    <p>\begin{equation}
+\begin{cases} &amp;\mathop{min}\limits_{H}\sum^N_{i=1}\sum^K_{k=1}H_{ik}|\phi(x_i)-\mu_k|^2<em>2\&amp;s.t. \ \sum^K</em>{k-1}H_{ik}=1 \end{cases}
+\end{equation}</p>
+  </li>
+</ul>
+
+<h4 id="5投影结合法"><strong>5.投影结合法</strong></h4>
+
+<p>​		对于有着相同结构的多视角数据，直接结合他们是很方便的事。但是在现实应用中，多视角的数据可能会有不同的结构，难以直接进行比较和结合。例如，病人的生物基因信息和临床症状作为两个聚类分析的视角，这难以直接结合。而且，高纬度和噪声难以处理。为了解决这类问题，投影结合法被提出，其中最常用的为CCA和KCCA。</p>
+
+<ul>
+  <li>
+    <p><strong>CCA和KCCA</strong>:</p>
+
+    <p>给树两个数据集<script type="math/tex">S_x=[x_1,x_2,…,x_N]\in\mathbb{R}^{d_x\times N},S_y=[y_1,y_2,…,y_N]\in \mathbb{R}^{d_y\times N}</script>每个x和y的均值均为0，CCA为x寻找一个投影<script type="math/tex">w_x\in\mathbb{R}^{d_x}</script>为y寻找一个投影<script type="math/tex">w_y\in\mathbb{R}^{d_y}</script>使得<script type="math/tex">S_x,S_y</script>的在<script type="math/tex">w_x,w_y</script>上投影的相关系数最大。</p>
+
+    <p>其中$\rho$表示相关系数，<script type="math/tex">C_{xy}</script>表示x,y的协方差矩阵，均值为0。发现<script type="math/tex">\rho</script>不受<script type="math/tex">w_x,w_y</script>的影响，CCA可以写作如下形式：</p>
+
+    <p>\begin{equation}
+\begin{cases}\mathop{max}\limits_{w_x,w_y}  \ &amp;{w_x}^TC_{xy}w_y\s.t &amp;{w_x}^TC_{xx}w_x=1\&amp;{w_y}^TC_{yy}w_y=1\end{cases}
+\end{equation}</p>
+  </li>
+</ul>
+:ET
