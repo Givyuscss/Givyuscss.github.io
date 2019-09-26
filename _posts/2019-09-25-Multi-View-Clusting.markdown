@@ -10,28 +10,62 @@ tags:
 ---
 
 
-## Spectral Clutering ———— 谱聚类
-+ **谱聚类**:谱聚类是利用拉普拉斯算子和图边缘来表示数据点之间的相似度，以此来解决最小切(min-cut)问题的技术。和其他常用的方法相比，谱聚类可以应用于任意形状的聚类，而k-means等仅适用于球形数据的聚类。
+## Spectral Clustering
 
-  step1 给出一个无向图$$G=(V,E)$$，且向量组$$V=v_1,…,v_N$$，该图的数据邻接矩阵定义为$W$，其中每个$$w_{ij}$$表示$$v_i,v_j$$两个向量之间的相似度。如果$$w_{ij}=0$$意味着$$v_i,v_j$$之间无连接。显然W是一个对称矩阵。
++ 在看《A Survey on Multi-View Clustering》时，文中有提到，谱聚类是多视角聚类的重要基础算法，因此学习记录一下谱聚类的原理和算法实现。
++ 与Kmeans等“传统算法”相比，谱聚类有更好的性能且实现简单。
 
-  step2 定义度矩阵$$D$$，为一个对角矩阵，对角元素为$$d_1,….,d_N$$，其中$$d_i$$为$$W$$中第i行数据之和$$d_i=\sum^N_{j=1}w_{ij}$$，则拉普拉斯算子为$$D-W$$，标准化拉普拉斯算子为$$\tilde{L}=D^{-1/2}(D-W)D^{-1/2}$$，在很多谱聚类的应用中，$$L=I-\tilde{L}$$被用来将最小化问题转化为最大化问题。因此$$L,\tilde{L}$$都被成为标准化的拉普拉斯算子。
+---
 
-  因此单视角的谱聚类方法可以表示为：
+### 1.应用场景
+
+给定一组数据点$$\{x_1,x_2,...,x_n\}$$，以及数据点之间的相似度$$s_{ij}$$，表示$$x_i$$和$$x_j$$数据点之间的相似度。将所有数据点分为K类。使得类内相似度高，类间相似度低。
+
+### 2.算法工具
+
++ **邻接矩阵$$W$$**：构建关于向量$$V=\{v_1,v_2,...,v_n\}$$的无向图$$G(V,E)$$，$$W$$为$$G$$的邻接矩阵，其中的$$w_{ij}$$表示$$v_i,v_j$$之间的连接权重。当$$w_{ij}=0$$时，表示两个向量无连接，且显然$$w_{ij}=w_{ji}$$。邻接矩阵$$W$$通过相似度矩阵$$S$$得到，有三种常见的方法：
+
+  **1)$$\epsilon$$-邻近**：根据相似度矩阵$$S$$中的$$s_{ij}=\|x_i-x_j\|^2$$
 
   $$
-  \begin{cases} &\mathop{max}\limits_{U\in \mathbb{R}^{N\times K}}tr(U^TLU)\\ &s.t \quad U^TU=I \end{cases}
+  w_{ij}=
+  \begin{cases}
+  0,&s_{ij}>\epsilon\\
+  \epsilon,&s{ij}\leq \epsilon
+  \end{cases}
   $$
 
-  可以等价转化为：
+  **2)K邻近**:K邻近有两种方法，第一种是当两个向量同时在对方的K邻近中才满足，第二种是有一>个向量在另一个向量的K邻近中即可，此时的$$w_{ij}$$均为:$$w_{ij}=w_{ji}=e^{\frac{\|x_i-x_j\|^2}{2\sigma^2}}$$,反之为0.
 
-  $$
-  \begin{cases} &\mathop{min}\limits_{U\in \mathbb{R}^{N\times K}}tr(U^T\tilde{L}U)\\ &s.t. \quad U^TU=I\end{cases}
-  $$
+  **3)全连接（高斯）**:$$w_{ij}=w_{ji}=e^{\frac{\|x_i-x_j\|^2}{2\sigma^2}}$$
 
-  $$U$$矩阵的行为数据点的嵌入，可以直接交给k-means来获得最终的聚类结果。解决上述优化问题的方法为：选择矩阵$$U$$，将$$L或\tilde{L}$$从小到大排列取前K个特征值的特征向量作为矩阵$$U$$的列，并对$U$每行特征向量正规化后进行聚类。
++ **度矩阵$$D$$**：另设定关于向量族的度矩阵$$D$$，$$d_{ij}=\sum^n_{j=1}w_{ij},w_{ij}\in W,d_{ij}\in D$$。度矩阵被定义为对角元素为$$[d_1,d_2,...,d_n]$$的对角矩阵。
 
-**谱聚类Python实现代码：**
++ **拉普拉斯矩阵$$LO$**：定义为正则化的拉普拉斯矩阵为$$L=D-W$$
++ $$L$$有如下性质：
+  1)$$\forall f\in R^n,\grave{f}Lf=\frac{1}{2}\sum^n_{i,j=1}w_{ij}(f_i-f_j)^2$$
+
+  2)对称，半正定
+
+  3)最小特征值为0，对应常数特征项量1
+
+  4)有n个非负特征值，且 $$ 0= \lambda_1 \leq \lambda_2 \leq ... \leq \lambda_n $$
+
++ 有两种正规化的方式：
+  1)随机游走：$$L_{rw}=D^{-1}L=1-D^{-1}W$$
+  2)对称：$$L_{sym}=D^{-1/2}WD^{-1/2}$$
+
+### 3.未正规化谱聚类算法步骤
+
+1. 通过相似矩阵$$S$$建立邻接矩阵$$W$$，设定分类个数k
+2. 通过邻接矩阵计算度矩阵$$D$$
+3. 计算拉普拉斯矩阵$$L$$
+4. 计算$$L$$的前k小的特征值所对应的特征向量$$\{u_1,u_2,...,u_k\}$$
+5. 将$$\{u_1,u_2,...,u_k\}$$中每个向量作为矩阵$$U$$的列
+6. 设$$y_i$$为$$U$$中第i行的向量，即$$y_1=[u_{11},u_{12},...,u_{1k}]$$
+7. 采用Kmeans对$$y_i,i=1,2,..,n$$分类，分出结果$$A_1,A_2,...,A_k$$
+
+**Python实现：**
 
 ```python
 import numpy as np
@@ -110,12 +144,12 @@ sp_cluster = KMeans(n_clusters=n_clustering).fit(V)
 plot(X,sp_cluster.labels_,n_clustering=n_clustering)
 ```
 
-聚类效果对比：
+### 聚类效果对比：
 
-Spectral clustering:
++ **Spectral clustering:**
 
 <img src="/img/in-post/clustering/result_sp.png" width="400px" height="275px"/>
 
-Kmeans：
++ **Kmeans：**
 
 <img src="/img/in-post/clustering/result_km.png" width="400px" height="275px"/>
