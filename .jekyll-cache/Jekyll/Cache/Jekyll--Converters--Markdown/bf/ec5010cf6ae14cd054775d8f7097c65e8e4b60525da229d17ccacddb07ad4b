@@ -1,0 +1,115 @@
+I"P?<h2 id="kmeans">Kmeans</h2>
+
+<ul>
+  <li>Kmeans 是一个十分经典的无监督学习算法，对于给定的样本集合，根据样本之间的距离大小将它们分为K簇，使得簇内样本之间的距离小，簇间样本的距离大。</li>
+</ul>
+
+<hr />
+
+<h3 id="优点">优点</h3>
+<ul>
+  <li>无监督学习，无需训练集</li>
+  <li>原理简单</li>
+  <li>结果可解释性强</li>
+</ul>
+
+<h3 id="缺点">缺点</h3>
+<ul>
+  <li>需要手动设置K值，初始化对结果有一定的影响</li>
+  <li>在大型数据集中可能会陷入局部最优</li>
+  <li>对离群点异常点十分敏感</li>
+</ul>
+
+<h3 id="算法流程">算法流程</h3>
+<ul>
+  <li>选定k个类中心<script type="math/tex">\{u_1,u_2,..,u_k\}</script>，选定中心的方法有很多，可以根据经验选择，也可在样本数据的数值范围内进行随机选取。</li>
+  <li>根据样本<script type="math/tex">x_i</script>与簇中心的距离将样本的类别标记为<script type="math/tex">y_i</script>：</li>
+  <li>计算每个簇中样本的均值<script type="math/tex">\hat{u}</script>，并更新:<script type="math/tex">u=\hat{u}</script></li>
+  <li>当质心不再发生变化时，停止算法，并输出簇，反之重复进行2，3步。</li>
+</ul>
+
+<h3 id="实例">实例</h3>
+<p>对testSet.txt文件中的数据点进行聚类，文件中数据为如下格式：
+<img src="/img/in-post/Kmeans/data_pic.jpg" width="200px" height="100px" /></p>
+
+<ul>
+  <li><strong>代码实现</strong></li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s">'TkAgg'</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="n">filepath</span> <span class="o">=</span> <span class="s">'./data/10.KMeans/testSet.txt'</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span><span class="s">'r'</span><span class="p">,</span><span class="n">encoding</span><span class="o">=</span><span class="s">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'</span><span class="se">\t</span><span class="s">'</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">line</span><span class="p">])</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mat</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">dis</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">centroids</span><span class="p">(</span><span class="n">dataSet</span><span class="p">,</span><span class="n">k</span><span class="p">):</span>
+    <span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="n">n</span><span class="p">)</span> <span class="o">=</span> <span class="n">dataSet</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">centers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">k</span><span class="p">,</span><span class="n">n</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">minl</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">dataSet</span><span class="p">[:,</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">rangeJ</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">dataSet</span><span class="p">[:,</span><span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="n">minl</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+            <span class="n">centers</span><span class="p">[</span><span class="n">j</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mat</span><span class="p">(</span><span class="n">minl</span> <span class="o">+</span> <span class="n">rangeJ</span> <span class="o">*</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">centers</span>
+
+<span class="k">def</span> <span class="nf">KMeans</span><span class="p">(</span><span class="n">dataSet</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">discal</span><span class="o">=</span><span class="n">dis</span><span class="p">,</span><span class="n">cen</span><span class="o">=</span><span class="n">centroids</span><span class="p">):</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">dataSet</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">clusterres</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">length</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">cens</span> <span class="o">=</span> <span class="n">cen</span><span class="p">(</span><span class="n">dataSet</span><span class="p">,</span><span class="n">k</span><span class="p">)</span>
+    <span class="n">clusterschange</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">while</span> <span class="n">clusterschange</span><span class="p">:</span>
+        <span class="n">clusterschange</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
+            <span class="n">mindis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">Inf</span>
+            <span class="n">minindex</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+                <span class="n">disab</span> <span class="o">=</span> <span class="n">discal</span><span class="p">(</span><span class="n">dataSet</span><span class="p">[</span><span class="n">i</span><span class="p">,:],</span><span class="n">cens</span><span class="p">[</span><span class="n">j</span><span class="p">,:])</span>
+                <span class="k">if</span> <span class="n">disab</span> <span class="o">&lt;</span> <span class="n">mindis</span><span class="p">:</span>
+                    <span class="n">mindis</span> <span class="o">=</span> <span class="n">disab</span>
+                    <span class="n">minindex</span> <span class="o">=</span> <span class="n">j</span>
+            <span class="k">if</span> <span class="n">clusterres</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">minindex</span><span class="p">:</span>
+                <span class="n">clusterschange</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="n">clusterres</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">minindex</span>
+                <span class="n">clusterres</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">mindis</span>
+        <span class="k">for</span> <span class="n">cent</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+            <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">clusterres</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">cent</span><span class="p">:</span>
+                    <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dataSet</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">cens</span><span class="p">[</span><span class="n">cent</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">points</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cens</span><span class="p">,</span><span class="n">clusterres</span>
+
+<span class="n">cens</span><span class="p">,</span><span class="n">cluster_res</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="n">dis</span><span class="p">,</span><span class="n">centroids</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+        <span class="n">colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">)</span><span class="o">/</span><span class="mf">255.0</span><span class="p">,</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">)</span><span class="o">/</span><span class="mf">255.0</span><span class="p">,</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">)</span><span class="o">/</span><span class="mf">255.0</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">colors</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="n">color</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">cluster_res</span> <span class="o">=</span> <span class="n">cluster_res</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span><span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">cluster_res</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">cens</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">cens</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">c</span><span class="o">=</span><span class="s">'red'</span><span class="p">,</span><span class="n">marker</span><span class="o">=</span><span class="s">'x'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<ul>
+  <li><strong>可视化分类结果为：</strong>
+<img src="/img/in-post/Kmeans/result.jpg" width="400px" height="275px" /></li>
+</ul>
+:ET

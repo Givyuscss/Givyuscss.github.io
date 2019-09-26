@@ -1,0 +1,115 @@
+I"D<h2 id="kmeans">Kmeans</h2>
+
+<ul>
+  <li>Kmeans 是一个十分经典的无监督学习算法，对于给定的样本集合，根据样本之间的距离大小将它们分为K簇，使得簇内样本之间的距离小，簇间样本的距离大。</li>
+</ul>
+
+<hr />
+
+<h3 id="优点">优点</h3>
+<ul>
+  <li>无监督学习，无需训练集</li>
+  <li>原理简单</li>
+  <li>结果可解释性强</li>
+</ul>
+
+<h3 id="缺点">缺点</h3>
+<ul>
+  <li>需要手动设置K值，初始化对结果有一定的影响</li>
+  <li>在大型数据集中可能会陷入局部最优</li>
+  <li>对离群点异常点十分敏感</li>
+</ul>
+
+<h3 id="算法流程">算法流程</h3>
+<ul>
+  <li>选定k个类中心<script type="math/tex">\{u_1,u_2,..,u_k\}</script>，选定中心的方法有很多，可以根据经验选择，也可在样本数据的数值范围内进行随机选取。</li>
+  <li>根据样本<script type="math/tex">x_i</script>与簇中心的距离将样本的类别标记为<script type="math/tex">y_i</script>：</li>
+  <li>计算每个簇中样本的均值<script type="math/tex">\hat{u}</script>，并更新:<script type="math/tex">u=\hat{u}</script></li>
+  <li>当质心不再发生变化时，停止算法，并输出簇，反之重复进行2，3步。</li>
+</ul>
+
+<h3 id="实例">实例</h3>
+<p>对testSet.txt文件中的数据点进行聚类，文件中数据为如下格式：
+<img src="/img/in-post/Kmeans/data_pic.jpg" width="200px" height="100px" /></p>
+
+<ul>
+  <li><strong>代码实现</strong>
+``` python
+import numpy as np
+import matplotlib
+matplotlib.use(‘TkAgg’)
+import matplotlib.pyplot as plt
+import random</li>
+</ul>
+
+<p>filepath = ‘./data/10.KMeans/testSet.txt’</p>
+
+<p>data = []
+with open(filepath,’r’,encoding=’utf-8’) as f:
+    lines = f.readlines()
+    for line in lines:
+        line = line.strip()
+        line = line.split(‘\t’)
+        data.append([float(x) for x in line])
+data = np.mat(data)</p>
+
+<p>def dis(a,b):
+    return np.linalg.norm(a - b)</p>
+
+<p>def centroids(dataSet,k):
+    (m,n) = dataSet[0].shape
+    centers = np.zeros((k,n))
+    for i in range(n):
+        minl = min(dataSet[:,i])
+        rangeJ = float(max(dataSet[:,i]) - minl)
+        for j in range(k):
+            centers[j,i] = np.mat(minl + rangeJ * random.random())
+    return centers</p>
+
+<p>def KMeans(dataSet,k,discal=dis,cen=centroids):
+    length = dataSet.shape[0]
+    clusterres = np.zeros((length,2))
+    cens = cen(dataSet,k)
+    clusterschange = True
+    while clusterschange:
+        clusterschange = False
+        for i in range(length):
+            mindis = np.Inf
+            minindex = -1
+            for j in range(k):
+                disab = discal(dataSet[i,:],cens[j,:])
+                if disab &lt; mindis:
+                    mindis = disab
+                    minindex = j
+            if clusterres[i,0] != minindex:
+                clusterschange = True
+                clusterres[i,0] = minindex
+                clusterres[i,1] = mindis
+        for cent in range(k):
+            points = []
+            for i in range(length):
+                if clusterres[i][0] == cent:
+                    points.append(dataSet[i])
+            cens[cent,:] = np.mean(points,axis=0)
+    return cens,clusterres</p>
+
+<p>cens,cluster_res = KMeans(data,4,dis,centroids)
+def color(k):
+    colors = []
+    for i in range(k):
+        colors.append(np.array((random.randint(0,255)/255.0,random.randint(0,255)/255.0,random.randint(0,255)/255.0)).reshape((1,3)))
+    return colors
+colors = color(4)
+data = data.tolist()
+cluster_res = cluster_res.tolist()
+for i in range(len(data)):
+    plt.scatter(data[i][0],data[i][1],s=10,c=colors[int(cluster_res[i][0])])
+plt.scatter(cens[:,0],cens[:,1],c=’red’,marker=’x’)
+plt.show()
+```</p>
+
+<ul>
+  <li><strong>可视化分类结果为：</strong>
+<img src="/img/in-post/Kmeans/result.jpg" width="400px" height="275px" /></li>
+</ul>
+:ET
