@@ -4,7 +4,7 @@ title:      "Spectral Clustering"
 subtitle:   " \"Spectral Clustering 原理以及简易实现\""
 date:       2019-09-25 12:00:00
 author:     "Givyuscss"
-header-img: "img/post-bg-2015.jpg"
+header-img: "img/post-bg-js-module.jpg"
 tags:
     - Machine Learning
 ---
