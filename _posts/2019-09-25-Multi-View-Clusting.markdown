@@ -6,11 +6,11 @@ date:       2019-09-25 12:00:00
 author:     "Givyuscss"
 header-img: "img/post-bg-2015.jpg"
 tags:
-    - Machin Learning
+    - Machine Learning
 ---
 
 
-##Spectral Clutering ———— 谱聚类
+## Spectral Clutering ———— 谱聚类
 + **谱聚类**:谱聚类是利用拉普拉斯算子和图边缘来表示数据点之间的相似度，以此来解决最小切(min-cut)问题的技术。和其他常用的方法相比，谱聚类可以应用于任意形状的聚类，而k-means等仅适用于球形数据的聚类。
 
   step1 给出一个无向图$$G=(V,E)$$，且向量组$$V=v_1,…,v_N$$，该图的数据邻接矩阵定义为$W$，其中每个$$w_{ij}$$表示$$v_i,v_j$$两个向量之间的相似度。如果$$w_{ij}=0$$意味着$$v_i,v_j$$之间无连接。显然W是一个对称矩阵。
