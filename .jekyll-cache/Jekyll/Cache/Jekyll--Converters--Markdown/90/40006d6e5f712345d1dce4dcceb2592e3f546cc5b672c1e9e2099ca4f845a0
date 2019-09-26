@@ -1,0 +1,111 @@
+I"o=<p>##Spectral Clutering ———— 谱聚类</p>
+<ul>
+  <li>
+    <p><strong>谱聚类</strong>:谱聚类是利用拉普拉斯算子和图边缘来表示数据点之间的相似度，以此来解决最小切(min-cut)问题的技术。和其他常用的方法相比，谱聚类可以应用于任意形状的聚类，而k-means等仅适用于球形数据的聚类。</p>
+
+    <p>step1 给出一个无向图<script type="math/tex">G=(V,E)</script>，且向量组<script type="math/tex">V=v_1,…,v_N</script>，该图的数据邻接矩阵定义为$W$，其中每个<script type="math/tex">w_{ij}</script>表示<script type="math/tex">v_i,v_j</script>两个向量之间的相似度。如果<script type="math/tex">w_{ij}=0</script>意味着<script type="math/tex">v_i,v_j</script>之间无连接。显然W是一个对称矩阵。</p>
+
+    <p>step2 定义度矩阵<script type="math/tex">D</script>，为一个对角矩阵，对角元素为<script type="math/tex">d_1,….,d_N</script>，其中<script type="math/tex">d_i</script>为<script type="math/tex">W</script>中第i行数据之和<script type="math/tex">d_i=\sum^N_{j=1}w_{ij}</script>，则拉普拉斯算子为<script type="math/tex">D-W</script>，标准化拉普拉斯算子为<script type="math/tex">\tilde{L}=D^{-1/2}(D-W)D^{-1/2}</script>，在很多谱聚类的应用中，<script type="math/tex">L=I-\tilde{L}</script>被用来将最小化问题转化为最大化问题。因此<script type="math/tex">L,\tilde{L}</script>都被成为标准化的拉普拉斯算子。</p>
+
+    <p>因此单视角的谱聚类方法可以表示为：</p>
+
+    <script type="math/tex; mode=display">% <![CDATA[
+\begin{cases} &\mathop{max}\limits_{U\in \mathbb{R}^{N\times K}}tr(U^TLU)\\ &s.t \quad U^TU=I \end{cases} %]]></script>
+
+    <p>可以等价转化为：</p>
+
+    <script type="math/tex; mode=display">% <![CDATA[
+\begin{cases} &\mathop{min}\limits_{U\in \mathbb{R}^{N\times K}}tr(U^T\tilde{L}U)\\ &s.t. \quad U^TU=I\end{cases} %]]></script>
+
+    <p><script type="math/tex">U</script>矩阵的行为数据点的嵌入，可以直接交给k-means来获得最终的聚类结果。解决上述优化问题的方法为：选择矩阵<script type="math/tex">U</script>，将<script type="math/tex">L或\tilde{L}</script>从小到大排列取前K个特征值的特征向量作为矩阵<script type="math/tex">U</script>的列，并对$U$每行特征向量正规化后进行聚类。</p>
+  </li>
+</ul>
+
+<p><strong>谱聚类Python实现代码：</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">datasets</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="c1">#生成数据点，make_moons生成为两个月牙形
+</span><span class="k">def</span> <span class="nf">circle_data</span><span class="p">(</span><span class="n">num_sample</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+    <span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">make_moons</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="n">num_sample</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="mf">0.08</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span><span class="n">y</span>
+
+<span class="c1">#生成邻接矩阵W
+</span><span class="k">def</span> <span class="nf">w_matrix</span><span class="p">(</span><span class="n">sample_data</span><span class="p">):</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample_data</span><span class="p">)</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">length</span><span class="p">,</span><span class="n">length</span><span class="p">))</span>
+    <span class="n">dis_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">length</span><span class="p">,</span><span class="n">length</span><span class="p">))</span>
+    <span class="c1">#计算距离矩阵D
+</span>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">length</span><span class="p">):</span>
+            <span class="n">dis_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">sample_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">sample_data</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">dis_matrix</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">dis_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span>
+    <span class="c1">#通过KNN生成邻接矩阵W
+</span>    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span><span class="n">each</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dis_matrix</span><span class="p">):</span>
+        <span class="n">index_array</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">each</span><span class="p">)</span>
+        <span class="n">W</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">index_array</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">10</span><span class="o">+</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># 距离最短的是自己
+</span>    <span class="n">tmp_W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="p">(</span><span class="n">tmp_W</span><span class="o">+</span><span class="n">W</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+    <span class="k">return</span> <span class="n">W</span>
+
+<span class="c1">#生成度矩阵D
+</span><span class="k">def</span> <span class="nf">d_matrix</span><span class="p">(</span><span class="n">Wmatrix</span><span class="p">):</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">Wmatrix</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">length</span><span class="p">,</span><span class="n">length</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
+        <span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">Wmatrix</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">d</span>
+
+<span class="c1">#生成随机颜色标记不同类别的数据点
+</span><span class="k">def</span> <span class="nf">randRGB</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span><span class="o">/</span><span class="mf">255.0</span><span class="p">,</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span><span class="o">/</span><span class="mf">255.0</span><span class="p">,</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span><span class="o">/</span><span class="mf">255.0</span><span class="p">)</span>
+
+<span class="c1">#根据数据点标签生成图像
+</span><span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span><span class="n">C</span><span class="p">,</span><span class="n">n_clustering</span><span class="p">):</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_clustering</span><span class="p">):</span>
+        <span class="n">colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">randRGB</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span><span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">C</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="n">matrix</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span><span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="n">idx</span><span class="p">])])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1">#预设参数
+</span><span class="n">num_sample</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">n_clustering</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1">#生成W，D，L矩阵
+</span><span class="n">X</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">circle_data</span><span class="p">(</span><span class="n">num_sample</span><span class="p">)</span>
+<span class="n">W</span> <span class="o">=</span> <span class="n">w_matrix</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">D</span> <span class="o">=</span> <span class="n">d_matrix</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>
+<span class="n">L</span> <span class="o">=</span> <span class="n">D</span> <span class="o">-</span> <span class="n">W</span>
+
+<span class="c1">#计算拉普拉斯矩阵的特征值和特征向量
+</span><span class="n">x</span><span class="p">,</span><span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+<span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">dictEigval</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">dim</span><span class="p">)))</span>
+<span class="c1">#排序并选取前K个特征值所对应的特征向量
+</span><span class="n">kEig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="n">n_clustering</span><span class="p">]</span>
+<span class="n">ix</span> <span class="o">=</span> <span class="p">[</span><span class="n">dictEigval</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kEig</span><span class="p">]</span>
+<span class="n">x</span><span class="p">,</span><span class="n">V</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">ix</span><span class="p">],</span><span class="n">V</span><span class="p">[:,</span><span class="n">ix</span><span class="p">]</span>
+
+<span class="c1">#用KMeans对特征向量聚类
+</span><span class="n">sp_cluster</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clustering</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">V</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">sp_cluster</span><span class="o">.</span><span class="n">labels_</span><span class="p">,</span><span class="n">n_clustering</span><span class="o">=</span><span class="n">n_clustering</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>聚类效果对比：</p>
+
+<p>Spectral clustering:</p>
+
+<p><img src="/img/in-post/clustering/result_sp.png" width="400px" height="275px" /></p>
+
+<p>Kmeans：</p>
+
+<p><img src="/img/in-post/clustering/result_km.png" width="400px" height="275px" /></p>
+:ET

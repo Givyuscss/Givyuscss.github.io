@@ -119,12 +119,3 @@ Spectral clustering:
 Kmeans：
 
 <img src="/img/in-post/clustering/result_km.png" width="400px" height="275px"/>
-
-
-  
-
-  其中$\rho$表示相关系数，$$C_{xy}$$表示x,y的协方差矩阵，均值为0。发现$$\rho$$不受$$w_x,w_y$$的影响，CCA可以写作如下形式：
-
-  $$
-  \begin{cases}\mathop{max}\limits_{w_x,w_y}  \ &{w_x}^TC_{xy}w_y\\s.t &{w_x}^TC_{xx}w_x=1\\&{w_y}^TC_{yy}w_y=1\end{cases}
-  $$
