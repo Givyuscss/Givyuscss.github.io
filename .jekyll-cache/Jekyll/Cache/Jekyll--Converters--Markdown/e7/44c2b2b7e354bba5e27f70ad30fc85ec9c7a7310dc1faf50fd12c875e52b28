@@ -1,4 +1,4 @@
-I"P?<h2 id="kmeans">Kmeans</h2>
+I"w?<h2 id="kmeans">Kmeans</h2>
 
 <ul>
   <li>Kmeans 是一个十分经典的无监督学习算法，对于给定的样本集合，根据样本之间的距离大小将它们分为K簇，使得簇内样本之间的距离小，簇间样本的距离大。</li>
@@ -29,7 +29,7 @@
 </ul>
 
 <h3 id="实例">实例</h3>
-<p>对testSet.txt文件中的数据点进行聚类，文件中数据为如下格式：
+<p>对<code class="highlighter-rouge">testSet.txt</code>文件中的数据点进行聚类，文件中数据为如下格式：
 <img src="/img/in-post/Kmeans/data_pic.jpg" width="200px" height="100px" /></p>
 
 <ul>

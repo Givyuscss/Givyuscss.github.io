@@ -33,12 +33,12 @@ tags:
 + 当质心不再发生变化时，停止算法，并输出簇，反之重复进行2，3步。
 
 ### 实例
-对testSet.txt文件中的数据点进行聚类，文件中数据为如下格式：
+对`testSet.txt`文件中的数据点进行聚类，文件中数据为如下格式：
 <img src="/img/in-post/Kmeans/data_pic.jpg" width="200px" height="100px"/>
 
 + **代码实现**
 
-``` python
+```python
 import numpy as np
 import matplotlib
 matplotlib.use('TkAgg')
