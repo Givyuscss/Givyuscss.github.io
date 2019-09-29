@@ -1,0 +1,53 @@
+I"�<h2 id="贝叶斯公式">贝叶斯公式</h2>
+
+<ul>
+  <li>贝叶斯法则</li>
+</ul>
+
+<p>通常，事件A在事件B发生的条件下的发生的概率，与事件B在事件A发生的条件下发生的概率是不一样的。贝叶斯法则就是来陈述这两者之间确定关系的。</p>
+
+<ul>
+  <li>贝叶斯公式</li>
+</ul>
+
+<p>贝叶斯将其思想总结为一条公式：</p>
+
+<script type="math/tex; mode=display">P(A_i\vert B)=\frac{P(A_i)P(B\vert A_i)}{\sum^n_{i=1}P(A_i)P(B\vert A_i)}</script>
+
+<p>其中各个部分被称为：</p>
+
+<p><script type="math/tex">P(A),P(B)</script>被称为事件<script type="math/tex">A</script>，<script type="math/tex">B</script>的先验概率或是边缘概率。</p>
+
+<p><script type="math/tex">P(A\vert B)</script>被称为事件B发生后A事件发生的条件概率，同理<script type="math/tex">P(B\vert A)</script>为事件<script type="math/tex">A</script>发生后<script type="math/tex">B</script>事件发生的条件概率</p>
+
+<p>贝叶斯公式的推导十分简单，即从条件概率公式推出:</p>
+
+<script type="math/tex; mode=display">P(A\vert B)=\frac{P(A\cap B)}{P(B)},P(B\vert A)=\frac{P(B\cap A)}{P(A)}</script>
+
+<p>则合并两个式子即可得到：</p>
+
+<script type="math/tex; mode=display">P(A\vert B)P(B)=P(A\cap B)=P(B\vert A)P(A)</script>
+
+<h2 id="贝叶斯公式用于分类">贝叶斯公式用于分类</h2>
+
+<ul>
+  <li>实例</li>
+</ul>
+
+<p>假设商店来的顾客有<script type="math/tex">\{x_1,x_2,...,x_n\}</script>个特征，最终需要对顾客进行预测的即为其会不会在商店内购买商品。</p>
+
+<p>通过已有的样本可以计算出针对购买情况<script type="math/tex">Y_i</script>的各个特征的后验概率：</p>
+
+<script type="math/tex; mode=display">P(x_1\vert Y_i),P(x_2\vert Y_i),...,P(x_n\vert Y_i)</script>
+
+<p>当新样本携带特征出现时，可以根据以上后验概率和贝叶斯公式来预测样本的购买情况：</p>
+
+<script type="math/tex; mode=display">P(Y_i\vert \{x_1,x_2,...,x_n\})=\frac{P(Y_i)P(\{x_1,x_2,...,x_n\}\vert Y_i)}{P(X)}</script>
+
+<p>由于假设各个特征相互独立，公式中的<script type="math/tex">P(\{x_1,x_2,...,x_n\}\vert Y_i)=\prod^n_{j=1} P(x_j\vert Y_i)</script></p>
+
+<ul>
+  <li></li>
+</ul>
+
+:ET
