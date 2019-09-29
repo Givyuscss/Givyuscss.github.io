@@ -83,3 +83,5 @@ $$
 将训练后的模型测试测试数据并输出结果。
 <img src="/img/in-post/Bayes/5.png" width="800px" height="600px"/>
 <img src="/img/in-post/Bayes/6.png" width="800px" height="400px"/>
+
+[数据与代码](https://github.com/Givyuscss/Givyuscss.github.io/tree/master/code/bayes_datasets "code and data"). 
