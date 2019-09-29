@@ -1,0 +1,507 @@
+I"
+�<h2 id="关联规则">关联规则</h2>
+
+<hr />
+
+<ul>
+  <li>
+    <p><strong>关联规则基本概念</strong></p>
+
+    <p>关联规则用来形容两个时间之间的关系:<script type="math/tex">X\mapsto Y</script></p>
+
+    <p>关联规则有如下几个指标：</p>
+
+    <p>支持度:<script type="math/tex">Support(X,Y)=\frac{num(XY)}{num(total)}=P(XY)</script></p>
+
+    <p>置信度:<script type="math/tex">Confidence(X,Y)=P(X\vert Y)=\frac{P(XY)}{P(Y)}，Confidence(Y,X)=P(Y\vert X)=\frac{P(XY)}{P(X)}</script></p>
+
+    <p>提升度:<script type="math/tex">lift(X\Leftarrow Y)=\frac{P(X\vert Y)}{X}</script></p>
+  </li>
+</ul>
+
+<h3 id="apriori算法">Apriori算法</h3>
+
+<p>Apriori算法是为了寻找样本中的频繁集，即支持度大于最小阈值的组合。</p>
+
+<p>Apriori提出两条规则：</p>
+<ol>
+  <li>若一个集合是频繁集，则它的子集都是频繁集</li>
+  <li>若一个集合不是频繁集，则它的超集都不是频繁集</li>
+</ol>
+
+<p>Apriori算法步骤：
+针对记录T:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">TID</th>
+      <th style="text-align: center">Items</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">T1</td>
+      <td style="text-align: center">l1,l3,l4</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">T2</td>
+      <td style="text-align: center">l2,l3,l5</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">T3</td>
+      <td style="text-align: center">l1,l2,l3,l5</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">T4</td>
+      <td style="text-align: center">l2,l5</td>
+    </tr>
+  </tbody>
+</table>
+
+<ol>
+  <li>首先扫描所有的事物，对记录中每个项进行计数得到候选项集记为<script type="math/tex">C1</script>。</li>
+</ol>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">项集</th>
+      <th style="text-align: center">支持度计数</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">{l1}</td>
+      <td style="text-align: center">2</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">{l2}</td>
+      <td style="text-align: center">3</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">{l3}</td>
+      <td style="text-align: center">3</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">{l4}</td>
+      <td style="text-align: center">1</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">{l5}</td>
+      <td style="text-align: center">3</td>
+    </tr>
+  </tbody>
+</table>
+
+<ol>
+  <li>对支持度计数和支持度的阈值进行比较，剔除小于支持度阈值的项集，得出频繁1项集记作<script type="math/tex">L1</script>。(假设阈值为2)</li>
+</ol>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">项集</th>
+      <th style="text-align: center">支持度计数</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">{l1}</td>
+      <td style="text-align: center">2</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">{l2}</td>
+      <td style="text-align: center">3</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">{l3}</td>
+      <td style="text-align: center">3</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">{l5}</td>
+      <td style="text-align: center">3</td>
+    </tr>
+  </tbody>
+</table>
+
+<ol>
+  <li>使用连接来产生候选项集2项集。剪掉项集中包含不频繁项的项集。剔除支持度计数小于阈值的项，得出频繁2项集<script type="math/tex">L2</script>。</li>
+</ol>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">项集</th>
+      <th style="text-align: center">支持度计数</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">{l1,l3}</td>
+      <td style="text-align: center">2</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">{l2,l3}</td>
+      <td style="text-align: center">2</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">{l2,l5}</td>
+      <td style="text-align: center">3</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">{l3,l5}</td>
+      <td style="text-align: center">2</td>
+    </tr>
+  </tbody>
+</table>
+
+<ol>
+  <li>重复2、3步直到下一个候选集为空。</li>
+  <li>得出所有的频繁项集。</li>
+</ol>
+
+<h3 id="fp-growth算法">FP-Growth算法</h3>
+
+<p>对于大型的数据集，Apriori的计算速度显然过于太慢，FP-Groth只需遍历数据集两边，相比于Apriori速度得到了很大的提升。</p>
+
+<p><strong>算法流程</strong></p>
+
+<ol>
+  <li>遍历数据集，得到频繁项为1的项目集，定义最小支持度，删除小于最小支持度的项目，将条目按项目集中的频次降序进行排列。</li>
+  <li>再次，创建项头表，以及FP树。</li>
+  <li>于找到每个项目条件模式基,递归调用树结构，删除小于最小支持度的项。如果最终呈现单一路径的树结构，则直接列举所有组合；非单一路径的则继续调用树结构，直到形成单一路径即可。</li>
+</ol>
+
+<p><strong>示例</strong></p>
+
+<p>数据清单为：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Tid</th>
+      <th style="text-align: center">Items</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">I1, I2, I5</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">I2, I4</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3</td>
+      <td style="text-align: center">I2, I3</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">I1, I2, I4</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5</td>
+      <td style="text-align: center">I1, I3</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">6</td>
+      <td style="text-align: center">I2, I3</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">7</td>
+      <td style="text-align: center">I1, I3</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">8</td>
+      <td style="text-align: center">I1, I2, I3, I5</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">9</td>
+      <td style="text-align: center">I1, I2, I3</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>
+    <p><strong>构建FP树</strong></p>
+
+    <p>a. 遍历数据集，物品进行计数</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: center">I1</th>
+          <th style="text-align: center">I2</th>
+          <th style="text-align: center">I3</th>
+          <th style="text-align: center">I4</th>
+          <th style="text-align: center">I5</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: center">6</td>
+          <td style="text-align: center">7</td>
+          <td style="text-align: center">6</td>
+          <td style="text-align: center">2</td>
+          <td style="text-align: center">2</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>b. 设定最小支持度为2，降序排列物品表</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: center">I2</th>
+          <th style="text-align: center">I1</th>
+          <th style="text-align: center">I3</th>
+          <th style="text-align: center">I4</th>
+          <th style="text-align: center">I5</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: center">7</td>
+          <td style="text-align: center">6</td>
+          <td style="text-align: center">6</td>
+          <td style="text-align: center">2</td>
+          <td style="text-align: center">2</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>c. 根据物品出现次数调整清单</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: center">Tid</th>
+          <th style="text-align: center">Items</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: center">1</td>
+          <td style="text-align: center">I2, I1, I5</td>
+        </tr>
+        <tr>
+          <td style="text-align: center">2</td>
+          <td style="text-align: center">I2, I4</td>
+        </tr>
+        <tr>
+          <td style="text-align: center">3</td>
+          <td style="text-align: center">I2, I3</td>
+        </tr>
+        <tr>
+          <td style="text-align: center">4</td>
+          <td style="text-align: center">I2, I1, I4</td>
+        </tr>
+        <tr>
+          <td style="text-align: center">5</td>
+          <td style="text-align: center">I1, I3</td>
+        </tr>
+        <tr>
+          <td style="text-align: center">6</td>
+          <td style="text-align: center">I2, I3</td>
+        </tr>
+        <tr>
+          <td style="text-align: center">7</td>
+          <td style="text-align: center">I1, I3</td>
+        </tr>
+        <tr>
+          <td style="text-align: center">8</td>
+          <td style="text-align: center">I2, I1, I3, I5</td>
+        </tr>
+        <tr>
+          <td style="text-align: center">9</td>
+          <td style="text-align: center">I2, I1, I3</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>d. 构建FP树</p>
+
+    <p>加入清单，出现相同的节点则进行累加。由于所有清单的物品顺序都是从高到低的，因此靠前的物品都更靠近树根。</p>
+  </li>
+</ul>
+
+<p><img src="/img/in-post/FP-Growth/1.png" width="400px" height="300px" /></p>
+
+<ul>
+  <li>
+    <p><strong>挖掘频繁集</strong></p>
+
+    <p>  对于每一个元素项，获取其对应的条件模式基。条件模式基是以所查找元素项为结尾的路径集合。每一条路径其实都是一条前缀路径。按照从下往上的顺序，考虑两个例子。</p>
+
+    <p>（1）考虑I5，得到条件模式基{(I2 I1:1), (I2 I1 I3)}, 然后递归调用FP-growth，模式后缀为I5。这个条件FP树是单路径的，在FP-growth中直接列举{I2:2，I1:2，I3:1}的所有组合，之后和模式后缀I5取并集得到支持度大于2的所有模式：{ I2 I5:2, I1 I5:2, I2 I1 I5:2}。</p>
+
+    <p><img src="/img/in-post/FP-Growth/2.png" width="400px" height="300px" /></p>
+
+    <p>（2）考虑I3，I3的条件模式基是{(I2 I1:2), (I2:2), (I1:2)}，然后递归调用FP-growth，模式前缀为I3。</p>
+
+    <p>  I3的条件FP树是一个多路径树，首先把模式后缀I3和条件FP树中的项头表中的每一项取并集，得到一组模式{I2 I3:4, I1 I3:4}，但是这一组不是后缀为I3的所有模式。还需要递归调用FP-growth，模式后缀为{I1，I3}，{I1，I3}的条件模式基为{I2：2}。这是一个单路径的条件FP-树，在FP-growth中把I2和模式后缀{I1，I3}取并得到模式{I1 I2 I3：2}。</p>
+
+    <p>  最终模式后缀I3的支持度大于2的所有模式为：{ I2 I3:4, I1 I3:4, I1 I2 I3:2}</p>
+
+    <p><img src="/img/in-post/FP-Growth/3.png" width="400px" height="300px" /></p>
+
+    <p>最终得到的支持度大于2频繁模式如下：</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align: center">item</th>
+          <th style="text-align: center">条件模式基</th>
+          <th style="text-align: center">条件FP树</th>
+          <th style="text-align: center">产生的频繁模式</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align: center">I5</td>
+          <td style="text-align: center">{(I2 I1:1),(I2 I1 I3:1)}</td>
+          <td style="text-align: center">(I2:2, I1:2)</td>
+          <td style="text-align: center">I2 I5:2, I1 I5:2, I2 I1 I5:2</td>
+        </tr>
+        <tr>
+          <td style="text-align: center">I4</td>
+          <td style="text-align: center">{(I2 I1:1), (I2:1)}</td>
+          <td style="text-align: center">(I2:2)</td>
+          <td style="text-align: center">I2 I4:2</td>
+        </tr>
+        <tr>
+          <td style="text-align: center">I3</td>
+          <td style="text-align: center">{(I2 I1:2), (I2:2), (I1:2)}</td>
+          <td style="text-align: center">(I2:4, I1:2), (I1:2)</td>
+          <td style="text-align: center">I2 I3:4, I1 I3:4, I2 I1 I3:2</td>
+        </tr>
+        <tr>
+          <td style="text-align: center">I1</td>
+          <td style="text-align: center">{(I2:4)}</td>
+          <td style="text-align: center">(I2:4)</td>
+          <td style="text-align: center">I2 I1:4</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>代码实现</p>
+  </li>
+</ul>
+
+<p>读取数据为：
+<img src="/img/in-post/FP-Growth/4.png" width="1000px" height="500px" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'shopping_cart.csv'</span><span class="p">,</span><span class="n">encoding</span><span class="o">=</span><span class="s">'gbk'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'，'</span><span class="p">))</span>
+
+<span class="k">class</span> <span class="nc">treeNode</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nameValue</span><span class="p">,</span> <span class="n">numOccur</span><span class="p">,</span> <span class="n">parentNode</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">nameValue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="n">numOccur</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodeLink</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parentNode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">def</span> <span class="nf">inc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numOccur</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="n">numOccur</span>
+    <span class="k">def</span> <span class="nf">disp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">print</span> <span class="p">(</span><span class="s">'  '</span> <span class="o">*</span> <span class="n">ind</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">' '</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">child</span><span class="o">.</span><span class="n">disp</span><span class="p">(</span><span class="n">ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">updateHeader</span><span class="p">(</span><span class="n">nodeToTest</span><span class="p">,</span> <span class="n">targetNode</span><span class="p">):</span>
+    <span class="k">while</span> <span class="n">nodeToTest</span><span class="o">.</span><span class="n">nodeLink</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">nodeToTest</span> <span class="o">=</span> <span class="n">nodeToTest</span><span class="o">.</span><span class="n">nodeLink</span>
+    <span class="n">nodeToTest</span><span class="o">.</span><span class="n">nodeLink</span> <span class="o">=</span> <span class="n">targetNode</span>
+<span class="k">def</span> <span class="nf">updateFPtree</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">inTree</span><span class="p">,</span> <span class="n">headerTable</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">inTree</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+        <span class="n">inTree</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">inc</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">inTree</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">treeNode</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">count</span><span class="p">,</span> <span class="n">inTree</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">headerTable</span><span class="p">[</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">headerTable</span><span class="p">[</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">inTree</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">updateHeader</span><span class="p">(</span><span class="n">headerTable</span><span class="p">[</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="mi">1</span><span class="p">],</span> <span class="n">inTree</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">updateFPtree</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">::],</span> <span class="n">inTree</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">headerTable</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">createFPtree</span><span class="p">(</span><span class="n">dataSet</span><span class="p">,</span> <span class="n">minSup</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">headerTable</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">trans</span> <span class="ow">in</span> <span class="n">dataSet</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">trans</span><span class="p">:</span>
+            <span class="n">headerTable</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">headerTable</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">dataSet</span><span class="p">[</span><span class="n">trans</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">headerTable</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">headerTable</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">minSup</span><span class="p">:</span>
+            <span class="k">del</span> <span class="p">(</span><span class="n">headerTable</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>  
+    <span class="n">freqItemSet</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">headerTable</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>  
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">freqItemSet</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">headerTable</span><span class="p">:</span>
+        <span class="n">headerTable</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">headerTable</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="bp">None</span><span class="p">]</span>  
+    <span class="n">retTree</span> <span class="o">=</span> <span class="n">treeNode</span><span class="p">(</span><span class="s">'Null Set'</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tranSet</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">dataSet</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">localD</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">tranSet</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">freqItemSet</span><span class="p">:</span>  
+                <span class="n">localD</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">headerTable</span><span class="p">[</span><span class="n">item</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>  
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">localD</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">orderedItem</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">localD</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)]</span>
+            <span class="n">updateFPtree</span><span class="p">(</span><span class="n">orderedItem</span><span class="p">,</span> <span class="n">retTree</span><span class="p">,</span> <span class="n">headerTable</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">retTree</span><span class="p">,</span> <span class="n">headerTable</span>
+
+<span class="k">def</span> <span class="nf">createInitSet</span><span class="p">(</span><span class="n">dataSet</span><span class="p">):</span>
+    <span class="n">retDict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">trans</span> <span class="ow">in</span> <span class="n">dataSet</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">retDict</span><span class="p">:</span>
+            <span class="n">retDict</span><span class="p">[</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">trans</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">retDict</span><span class="p">[</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">trans</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">retDict</span>
+
+<span class="k">def</span> <span class="nf">ascendFPtree</span><span class="p">(</span><span class="n">leafNode</span><span class="p">,</span> <span class="n">prefixPath</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">leafNode</span><span class="o">.</span><span class="n">parent</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">prefixPath</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">leafNode</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">ascendFPtree</span><span class="p">(</span><span class="n">leafNode</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">prefixPath</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">findPrefixPath</span><span class="p">(</span><span class="n">basePat</span><span class="p">,</span> <span class="n">myHeaderTab</span><span class="p">):</span>
+    <span class="n">treeNode</span> <span class="o">=</span> <span class="n">myHeaderTab</span><span class="p">[</span><span class="n">basePat</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>  
+    <span class="n">condPats</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">while</span> <span class="n">treeNode</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">prefixPath</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ascendFPtree</span><span class="p">(</span><span class="n">treeNode</span><span class="p">,</span> <span class="n">prefixPath</span><span class="p">)</span>  
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefixPath</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">condPats</span><span class="p">[</span><span class="nb">frozenset</span><span class="p">(</span><span class="n">prefixPath</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span> <span class="o">=</span> <span class="n">treeNode</span><span class="o">.</span><span class="n">count</span>  
+        <span class="n">treeNode</span> <span class="o">=</span> <span class="n">treeNode</span><span class="o">.</span><span class="n">nodeLink</span>  
+    <span class="k">return</span> <span class="n">condPats</span>
+<span class="k">def</span> <span class="nf">mineFPtree</span><span class="p">(</span><span class="n">inTree</span><span class="p">,</span> <span class="n">headerTable</span><span class="p">,</span> <span class="n">minSup</span><span class="p">,</span> <span class="n">preFix</span><span class="p">,</span> <span class="n">freqItemList</span><span class="p">):</span>
+    
+    <span class="n">bigL</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">headerTable</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])]</span><span class="c1"># 排序条件应该为p:p[1][0]，样例中的p[1]比较的为[Sup,TreeNode]的数据，会出错。
+</span>    <span class="k">for</span> <span class="n">basePat</span> <span class="ow">in</span> <span class="n">bigL</span><span class="p">:</span> 
+        <span class="n">newFreqSet</span> <span class="o">=</span> <span class="n">preFix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">newFreqSet</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">basePat</span><span class="p">)</span>
+        <span class="n">freqItemList</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newFreqSet</span><span class="p">)</span>
+        <span class="n">condPattBases</span> <span class="o">=</span> <span class="n">findPrefixPath</span><span class="p">(</span><span class="n">basePat</span><span class="p">,</span> <span class="n">headerTable</span><span class="p">)</span>  
+        <span class="n">myCondTree</span><span class="p">,</span> <span class="n">myHead</span> <span class="o">=</span> <span class="n">createFPtree</span><span class="p">(</span><span class="n">condPattBases</span><span class="p">,</span> <span class="n">minSup</span><span class="p">)</span>  
+        <span class="k">if</span> <span class="n">myHead</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">mineFPtree</span><span class="p">(</span><span class="n">myCondTree</span><span class="p">,</span> <span class="n">myHead</span><span class="p">,</span> <span class="n">minSup</span><span class="p">,</span> <span class="n">newFreqSet</span><span class="p">,</span> <span class="n">freqItemList</span><span class="p">)</span>  
+
+<span class="n">initSet</span> <span class="o">=</span> <span class="n">createInitSet</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">myFPtree</span><span class="p">,</span> <span class="n">myHeaderTab</span> <span class="o">=</span> <span class="n">createFPtree</span><span class="p">(</span><span class="n">initSet</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">myFreqList</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">mineFPtree</span><span class="p">(</span><span class="n">myFPtree</span><span class="p">,</span> <span class="n">myHeaderTab</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="nb">set</span><span class="p">([]),</span> <span class="n">myFreqList</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"myFreqList</span><span class="se">\'</span><span class="s">s length: </span><span class="si">%</span><span class="s">s"</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">myFreqList</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">myFreqList</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+</code></pre></div></div>
+
+<p>找到的频繁集为：
+<img src="/img/in-post/FP-Growth/5.png" width="200px" height="150px" /></p>
+:ET

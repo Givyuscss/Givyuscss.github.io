@@ -1,0 +1,22 @@
+I"�<h2 id="关联规则">关联规则</h2>
+
+<hr />
+
+<ul>
+  <li>
+    <p><strong>关联规则基本概念</strong></p>
+
+    <p>关联规则用来形容两个时间之间的关系:<script type="math/tex">X\mapsto Y</script></p>
+
+    <p>关联规则有如下几个指标：</p>
+
+    <p>支持度:<script type="math/tex">Support(X,Y)=\frac{num(XY)}{num(total)}=P(XY)</script></p>
+
+    <p>置信度:<script type="math/tex">Confidence(X,Y)=P(X\vert Y)=\frac{P(XY)}{P(Y)}，Confidence(Y,X)=P(Y\vert X)=\frac{P(XY)}{P(X)}</script></p>
+
+    <p>提升度:<script type="math/tex">lift(X\Leftarrow Y)=\frac{P(X\vert Y)}{X}</script></p>
+  </li>
+  <li></li>
+</ul>
+
+:ET

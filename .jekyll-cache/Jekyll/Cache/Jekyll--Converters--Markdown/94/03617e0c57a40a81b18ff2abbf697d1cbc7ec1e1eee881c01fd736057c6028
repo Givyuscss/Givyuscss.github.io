@@ -1,0 +1,74 @@
+I",<h3 id="贝叶斯公式">贝叶斯公式</h3>
+<hr />
+
+<ul>
+  <li><strong>贝叶斯法则</strong></li>
+</ul>
+
+<p>通常，事件A在事件B发生的条件下的发生的概率，与事件B在事件A发生的条件下发生的概率是不一样的。贝叶斯法则就是来陈述这两者之间确定关系的。</p>
+
+<ul>
+  <li><strong>贝叶斯公式</strong></li>
+</ul>
+
+<p>贝叶斯将其思想总结为一条公式：</p>
+
+<script type="math/tex; mode=display">P(A_i\vert B)=\frac{P(A_i)P(B\vert A_i)}{\sum^n_{i=1}P(A_i)P(B\vert A_i)}</script>
+
+<p>其中各个部分被称为：</p>
+
+<p><script type="math/tex">P(A),P(B)</script>被称为事件<script type="math/tex">A</script>，<script type="math/tex">B</script>的先验概率或是边缘概率。</p>
+
+<p><script type="math/tex">P(A\vert B)</script>被称为事件B发生后A事件发生的条件概率，同理<script type="math/tex">P(B\vert A)</script>为事件<script type="math/tex">A</script>发生后<script type="math/tex">B</script>事件发生的条件概率</p>
+
+<p>贝叶斯公式的推导十分简单，即从条件概率公式推出:</p>
+
+<script type="math/tex; mode=display">P(A\vert B)=\frac{P(A\cap B)}{P(B)},P(B\vert A)=\frac{P(B\cap A)}{P(A)}</script>
+
+<p>则合并两个式子即可得到：</p>
+
+<script type="math/tex; mode=display">P(A\vert B)P(B)=P(A\cap B)=P(B\vert A)P(A)</script>
+
+<p> </p>
+<h3 id="贝叶斯公式用于分类">贝叶斯公式用于分类</h3>
+<hr />
+<ul>
+  <li><strong>实例</strong></li>
+</ul>
+
+<p>假设商店来的顾客有<script type="math/tex">\{x_1,x_2,...,x_n\}</script>个特征，最终需要对顾客进行预测的即为其会不会在商店内购买商品。</p>
+
+<p>通过已有的样本可以计算出针对购买情况<script type="math/tex">Y_i</script>的各个特征的后验概率：</p>
+
+<script type="math/tex; mode=display">P(x_1\vert Y_i),P(x_2\vert Y_i),...,P(x_n\vert Y_i)</script>
+
+<p>当新样本携带特征出现时，可以根据以上后验概率和贝叶斯公式来预测样本的购买情况：</p>
+
+<script type="math/tex; mode=display">P(Y_i\vert \{x_1,x_2,...,x_n\})=\frac{P(Y_i)P(\{x_1,x_2,...,x_n\}\vert Y_i)}{P(X)}</script>
+
+<p>从已有标注的样本中可以获得各个特征的先验概率，且由于假设各个特征相互独立，公式中的<script type="math/tex">P(\{x_1,x_2,...,x_n\}\vert Y_i)=\prod^n_{j=1} P(x_j\vert Y_i)</script></p>
+
+<ul>
+  <li><strong>文本分类</strong></li>
+</ul>
+
+<p>文本分类是通过将文本中的句子分割成一个个词汇，通过将词嵌入进向量中作为特征。通过各个词的出现与否来判断该文本属于哪个类别。</p>
+
+<p>首先导入数据，数据分为<code class="highlighter-rouge">trian</code>和<code class="highlighter-rouge">test</code>两个文件夹，<code class="highlighter-rouge">trian</code>中包含<code class="highlighter-rouge">travel</code>和<code class="highlighter-rouge">hotal</code>两个类别的txt。
+<img src="/img/in-post/Bayes/1.png" width="800px" height="600px" /></p>
+
+<p>通过分词函数包<code class="highlighter-rouge">jieba</code>将读取的txt文件内容分成词。
+<img src="/img/in-post/Bayes/2.png" width="800px" height="600px" /></p>
+
+<p>从<code class="highlighter-rouge">sklearn</code>中导入词向量嵌入函数并将训练样本嵌入。
+<img src="/img/in-post/Bayes/3.png" width="800px" height="400px" /></p>
+
+<p>将样本分为训练集和验证集进行训练兵输出测试结果。
+<img src="/img/in-post/Bayes/4.png" width="800px" height="600px" /></p>
+
+<p>将训练后的模型测试测试数据并输出结果。
+<img src="/img/in-post/Bayes/5.png" width="800px" height="600px" />
+<img src="/img/in-post/Bayes/6.png" width="800px" height="400px" /></p>
+
+<p><a href="https://github.com/Givyuscss/Givyuscss.github.io/tree/master/code/bayes_datasets" title="code and data">数据与代码</a>.</p>
+:ET
