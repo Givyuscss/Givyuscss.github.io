@@ -118,6 +118,6 @@ plt.show()
 
 可视化结果为：
 
-<img src="/img/in-post/PCA/2.png" width="400px" height="275px"/>、
+<img src="/img/in-post/PCA/2.png" width="400px" height="275px"/>
 
-[获取数据](https://github.com/Givyuscss/Givyuscss.github.io/tree/master/code/PCA_datasets "code and data")
+[获取数据](https://github.com/Givyuscss/Givyuscss.github.io/tree/master/code/PCA_datasets "code and data").
