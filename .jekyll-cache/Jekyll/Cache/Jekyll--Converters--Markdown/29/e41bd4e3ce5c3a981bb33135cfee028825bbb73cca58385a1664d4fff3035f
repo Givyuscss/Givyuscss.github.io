@@ -1,4 +1,4 @@
-I"&6<h2 id="pca">PCA</h2>
+I"$6<h2 id="pca">PCA</h2>
 
 <p>PCA主要是用于处理数据冗杂问题，功能是数据降维</p>
 
@@ -120,7 +120,7 @@
 
 <p>可视化结果为：</p>
 
-<p><img src="/img/in-post/PCA/2.png" width="400px" height="275px" />、</p>
+<p><img src="/img/in-post/PCA/2.png" width="400px" height="275px" /></p>
 
-<p><a href="https://github.com/Givyuscss/Givyuscss.github.io/tree/master/code/PCA_datasets" title="code and data">获取数据</a></p>
+<p><a href="https://github.com/Givyuscss/Givyuscss.github.io/tree/master/code/PCA_datasets" title="code and data">获取数据</a>.</p>
 :ET

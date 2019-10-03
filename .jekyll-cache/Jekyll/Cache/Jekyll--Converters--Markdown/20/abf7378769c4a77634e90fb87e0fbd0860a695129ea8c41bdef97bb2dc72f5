@@ -1,0 +1,91 @@
+I"]<h2 id="mlemap和bayes估计">MLE、MAP和Bayes估计</h2>
+
+<p>MLE、MAP、Bayes估计三个常用的参数估计方法。每次接触到，由于对三种方法的理解不够，记不起细节，故记录一下。</p>
+
+<h3 id="似然和概率">似然和概率</h3>
+
+<p><strong>似然（likelihood）</strong>和<strong>概率（probability）</strong>是同义词，都指事件发生的可能性。但在统计中，似然与概率是不同的东西。概率是已知参数，对结果可能性的预测。似然是已知结果，对参数是某个值的可能性预测。</p>
+
+<h3 id="似然函数和概率函数">似然函数和概率函数</h3>
+
+<p>对于函数<script type="math/tex">P(x\vert \theta)</script>，从不同的观测角度来看可以分为以下两种情况：</p>
+
+<p>如果<script type="math/tex">\theta</script>已知且保持不变，<script type="math/tex">x</script>是变量，则<script type="math/tex">P(x\vert \theta)</script>称为<strong>概率函数</strong>，表示不同<script type="math/tex">x</script>出现的概率。</p>
+
+<p>如果<script type="math/tex">x</script>已知且保持不变，<script type="math/tex">\theta</script>是变量，则<script type="math/tex">P(x\vert \theta)</script>称为<strong>似然函数</strong>，表示不同<script type="math/tex">\theta</script>下，<script type="math/tex">x</script>出现的概率，也记作<script type="math/tex">L(\theta\vert x)</script>或<script type="math/tex">L(x;\theta)</script>或<script type="math/tex">f(x;\theta)</script>。</p>
+
+<h3 id="最大似然估计mle">最大似然估计(MLE)</h3>
+
+<p>最大似然估计使用来估计概率模型参数的一种方法。其基本思想是使得观测数据出现概率最大的参数就是最佳参数。</p>
+
+<p>对于一个独立同分布的样本集来说，总体的似然函数就是每个样本似然函数的乘积，可以写作:</p>
+
+<script type="math/tex; mode=display">L(X;\theta)=ln\prod^n_{i=1}P(x_i\vert \theta)</script>
+
+<p>对似然函数取对数可以在不改变函数的凹凸性的基础下方便求解。则MLE的目的即为：求使得L最大的<script type="math/tex">\theta</script>:</p>
+
+<script type="math/tex; mode=display">\frac{\partial L(X;\theta)}{\partial \theta}=0</script>
+
+<h3 id="最大后验分布map">最大后验分布(MAP)</h3>
+
+<p>最大后验分布直观的来说就是在最大似然估计的基础上加入了正则项，只不过在机器学习领域的正则项都是加法形式的，而MAP中的正则项是乘法形式的。</p>
+
+<p>最大后验分布考虑<script type="math/tex">\theta</script>是一个随机变量，因此存在<script type="math/tex">P(\theta)</script>为<script type="math/tex">\theta</script>的先验分布。因此认为使得<script type="math/tex">P(X\vert \theta)P(\theta)</script>取到最大的<script type="math/tex">\theta</script>即为最佳<script type="math/tex">\theta</script>。则目标函数即为后验概率形式：</p>
+
+<script type="math/tex; mode=display">\mathop{argmax}\limits_{\theta}P(\theta \vert X)=\mathop{argmax}\limits_{\theta}\frac{P(X\vert \theta)P(\theta)}{P(X)}</script>
+
+<p>由于样本<script type="math/tex">X</script>的分布已知，所以最大化目标转化为：</p>
+
+<script type="math/tex; mode=display">\mathop{argmax}\limits_{\theta}P(X\vert \theta)P(\theta)</script>
+
+<p>在最大似然估计中，认为<script type="math/tex">\theta</script>是一个固定的值，因此<script type="math/tex">P(\theta)=1</script>，因此MLE可以认作是特殊情况下的MAP</p>
+
+<h3 id="贝叶斯估计be">贝叶斯估计(BE)</h3>
+
+<p>贝叶斯估计是最大后验估计的进一步扩展，贝叶斯估计同样假定<script type="math/tex">\theta</script>是一个随机变量，但贝叶斯估计并不是直接估计出<script type="math/tex">\theta</script>的某个特定值，而是估计<script type="math/tex">\theta</script>的分布，这是贝叶斯估计与最大后验概率估计不同的地方。在贝叶斯估计中，先验分布<script type="math/tex">P(X)</script>是不可忽略的。</p>
+
+<p>贝叶斯公式为：</p>
+
+<script type="math/tex; mode=display">P(\theta\vert X)=\frac{P(X\vert \theta)P(\theta)}{P(X)}</script>
+
+<p>在连续型随机变量中，由于<script type="math/tex">P(X)=\int_{\Theta}P(X\vert \theta)P(\theta)d\theta</script>，因此后验分布公式为：</p>
+
+<script type="math/tex; mode=display">P(\theta\vert X)=\frac {P(X\vert \theta)P(\theta)} {\int_{\Theta}P(X\vert \theta)P(\theta)d\theta}</script>
+
+<p>由后验分布估计<script type="math/tex">\theta</script>有三种常用的方式：</p>
+<ol>
+  <li>使用后验分布的密度函数最大值点作为<script type="math/tex">\theta</script>的点估计的最大后验估计MAP</li>
+  <li>使用后验分布的中位数作为<script type="math/tex">\theta</script>的点估计的后验中位数估计</li>
+  <li>使用后验分布的均值作为<script type="math/tex">\theta</script>的点估计的后验期望估计</li>
+</ol>
+
+<p>使用的最多的是后验期望估计，也称为贝叶斯估计。</p>
+
+<p>通过推导可以得出<script type="math/tex">\theta</script>估计的最终形式为：</p>
+
+<script type="math/tex; mode=display">\hat{\theta}=E(\theta)=\int_{\Theta}\theta P(\theta \vert X)d\theta</script>
+
+<h3 id="三个估计的直观理解">三个估计的直观理解</h3>
+
+<p>假设面对一个问题，需要从一个班里选取一个人来解答，使得答对的几率最高。</p>
+
+<p>则三种估计方法对应三种策略：</p>
+
+<ul>
+  <li>
+    <p>MLE</p>
+
+    <p>从班里挑选过往成绩最好的学生，让他去解答这道题。</p>
+  </li>
+  <li>
+    <p>MAP</p>
+
+    <p>与第一种策略不同，第二种策略接受到了额外的信息。比如老师的建议（先验概率）。老师认为前两名同学成绩可能存在水分，则基于老师的额外信息，可能最终选择答题的人选是第三或是第四名。</p>
+  </li>
+  <li>
+    <p>BE</p>
+
+    <p>第三种策略是希望所有的同学都去参与答题，采用加权的形式来获得最终的答案。贝叶斯估计的目的就是得到所有同学加权权重的分布<script type="math/tex">P(\theta)</script></p>
+  </li>
+</ul>
+:ET
