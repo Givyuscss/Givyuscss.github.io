@@ -15,7 +15,7 @@ tags:
 
 
 
-<img src="/Users/givyuscss/Givyuscss.github.io/img/in-post/birthday/img_1.jpg" alt="img_1" style="zoom:26%;" />
+<img src="/img/in-post/birthday/img_1.jpg" alt="img_1" style="zoom:26%;" />
 
 
 
