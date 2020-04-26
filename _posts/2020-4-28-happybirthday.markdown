@@ -54,31 +54,31 @@ tags:
 
 比如什么模仿达人
 
-<img src="/img/in-post/birthday/img_5.jpg" alt="img_5" style="zoom:25%;" />
+<img src="/img/in-post/birthday/img_5.jpg" alt="img_5" style="zoom:15%;" />
 
 
 
 牛角魔女
 
-<img src="/img/in-post/birthday/img_4.jpg" alt="img_4" style="zoom:25%;" />
+<img src="/img/in-post/birthday/img_4.jpg" alt="img_4" style="zoom:15%;" />
 
 
 
 墨镜潮女
 
-<img src="/img/in-post/birthday/img_6.jpg" alt="img_6" style="zoom:25%;" />
+<img src="/img/in-post/birthday/img_6.jpg" alt="img_6" style="zoom:15%;" />
 
 
 
 薰衣草仙子
 
-<img src="/img/in-post/birthday/img_7.jpg" alt="img_7" style="zoom:25%;" />
+<img src="/img/in-post/birthday/img_7.jpg" alt="img_7" style="zoom:15%;" />
 
 
 
 最强的还是滑雪健将（自封）了
 
-<img src="/img/in-post/birthday/img_3.jpg" alt="img_3" style="zoom:50%;" />
+<img src="/img/in-post/birthday/img_3.jpg" alt="img_3" style="zoom:25%;" />
 
 
 
