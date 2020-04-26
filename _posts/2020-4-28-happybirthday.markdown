@@ -16,7 +16,7 @@ tags:
 
 
 
-<img src="/img/in-post/birthday/img_1.jpg" alt="img_1" style="zoom:26%;" />
+<img src="/img/in-post/birthday/img_1.jpg" alt="img_1" style="zoom:15%;" />
 
 （还有好多，9张图放不下了）
 
